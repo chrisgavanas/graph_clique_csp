@@ -1,33 +1,59 @@
-import org.jacop.constraints.XneqY;
-import org.jacop.core.IntVar;
-import org.jacop.core.Store;
-import org.jacop.search.DepthFirstSearch;
-import org.jacop.search.IndomainMin;
-import org.jacop.search.InputOrderSelect;
-import org.jacop.search.Search;
-import org.jacop.search.SelectChoicePoint;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.InvalidPropertiesFormatException;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Scanner;
+import java.util.Set;
+
+import enums.Operation;
 
 public class Main {
 
     public static void main(String[] args) {
-        Store store = new Store();
-        // define finite domain variables
-        int size = 4;
-        IntVar[] v = new IntVar[size];
-        for (int i = 0; i < size; i++)
-            v[i] = new IntVar(store, "v" + i, 1, size);
-        // define constraints
-        store.impose(new XneqY(v[0], v[1]));
-        store.impose(new XneqY(v[0], v[2]));
-        store.impose(new XneqY(v[1], v[2]));
-        store.impose(new XneqY(v[1], v[3]));
-        store.impose(new XneqY(v[2], v[3]));
-// search for a solution and print results
-        Search<IntVar> search = new DepthFirstSearch<IntVar>();
-        SelectChoicePoint<IntVar> select =
-                new InputOrderSelect<IntVar>(store, v,
-                        new IndomainMin<IntVar>());
-        search.labeling(store, select);
+        Scanner sc = null;
+        boolean reading = true;
+        Long lines = null;
+        Integer maxEdgeNo = null;
+        String[] parts;
+        Map<Long, Set<Long>> graph = new HashMap<>();
+        try {
+            sc = new Scanner(new File("dataset/c125.txt"));
+            while (reading) {
+                String nextLine = sc.nextLine();
+                Operation operation = Operation.fromString(String.valueOf(nextLine.charAt(0)));
+                Optional.ofNullable(operation).orElseThrow(() -> new InvalidPropertiesFormatException("Invalid property type"));
+                switch (operation) {
+                    case EDGE:
+                        parts = nextLine.split(" ");
+                        Long from = Long.valueOf(parts[1]);
+                        Long to = Long.valueOf(parts[2]);
+                        graph.get(from).add(to);
+                        lines--;
+                        if (lines == 0)
+                            reading = false;
+                        break;
+                    case COMMENT:
+                        break;
+                    case INFO:
+                        parts = nextLine.split(" ");
+                        maxEdgeNo = Integer.valueOf(parts[2]);
+                        lines = Long.valueOf(parts[3]);
+                        for (long i = 1; i <= maxEdgeNo; i++)
+                            graph.put(i, new HashSet<>());
+                        break;
+                }
+            }
+        } catch (FileNotFoundException e) {
+            System.err.println("File not found");
+        } catch (InvalidPropertiesFormatException e2) {
+            System.err.println("Invalid property in file");
+        } finally {
+            if (sc != null)
+                sc.close();
+        }
     }
 
 }

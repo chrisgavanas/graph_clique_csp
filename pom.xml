@@ -8,13 +8,14 @@
     <artifactId>Clique_csp</artifactId>
     <version>1.0-SNAPSHOT</version>
 
-    <!-- Jacop library -->
     <dependencies>
+        <!-- Choco Solver Library -->
         <dependency>
-            <groupId>org.jacop</groupId>
-            <artifactId>jacop</artifactId>
-            <version>4.4.0</version>
+            <groupId>org.choco-solver</groupId>
+            <artifactId>choco-solver</artifactId>
+            <version>4.0.0</version>
         </dependency>
     </dependencies>
+
 
 </project>
